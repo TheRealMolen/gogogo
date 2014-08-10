@@ -11,18 +11,30 @@ entity gogogo is
 end gogogo;
 
 architecture Behavioral of gogogo is
-	signal counter : UNSIGNED( 29 downto 0 ) := (others => '0');
+	signal counter : UNSIGNED( 16 downto 0 ) := (others => '0');
 begin
 
-	tick: process( clk )
+	tick: process( clk, switches, counter )
 	begin
 		if rising_edge(clk) then
 			counter <= counter + 1;
 		end if;
-	end process;
-	
-	numberise: process( switches )
-	begin
+		
+		-- bit 15 changes at 488Hz (assuming 32MHz clock)
+		case counter(16 downto 15) is
+			when "00" =>
+				digits <= "1110";
+			when "01" =>
+				digits <= "1101";
+			when "10" =>
+				digits <= "1011";
+			when "11" =>
+				digits <= "0111";
+				
+			when others =>
+				digits <= "1111";
+		end case;
+		
 		case switches( 3 downto 0 ) is
 			when "0000" =>
 				segments <= "1000000";
@@ -62,7 +74,7 @@ begin
 		end case;
 	end process;
 	
-	digits <= "0000";	-- ALL THE DIGITS!!
+	--digits <= "0000";	-- ALL THE DIGITS!!
 	dp <= '1';
 	
 end Behavioral;
