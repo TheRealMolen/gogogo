@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 entity gogogo is
-    Port ( switches : in STD_LOGIC_VECTOR( 3 downto 0 );
+    Port ( switches : in STD_LOGIC_VECTOR( 7 downto 0 );
            digits : out  STD_LOGIC_VECTOR( 3 downto 0 );
 			  segments : out  STD_LOGIC_VECTOR( 6 downto 0 );
 			  dp : out STD_LOGIC;
@@ -12,9 +12,10 @@ end gogogo;
 
 architecture Behavioral of gogogo is
 	signal counter : UNSIGNED( 16 downto 0 ) := (others => '0');
+	signal activeDigit : UNSIGNED( 3 downto 0 ) := "0000";
 begin
 
-	tick: process( clk, switches, counter )
+	tick: process( clk, switches )
 	begin
 		if rising_edge(clk) then
 			counter <= counter + 1;
@@ -24,18 +25,23 @@ begin
 		case counter(16 downto 15) is
 			when "00" =>
 				digits <= "1110";
+				activeDigit <= unsigned( switches( 3 downto 0 ) );
 			when "01" =>
 				digits <= "1101";
+				activeDigit <= unsigned( switches( 7 downto 4 ) );
 			when "10" =>
 				digits <= "1011";
+				activeDigit <= unsigned( switches( 3 downto 0 ) );
 			when "11" =>
 				digits <= "0111";
+				activeDigit <= unsigned( switches( 7 downto 4 ) );
 				
 			when others =>
 				digits <= "1111";
+				activeDigit <= ( others => '0' );
 		end case;
 		
-		case switches( 3 downto 0 ) is
+		case activeDigit is
 			when "0000" =>
 				segments <= "1000000";
 			when "0001" =>
@@ -74,7 +80,6 @@ begin
 		end case;
 	end process;
 	
-	--digits <= "0000";	-- ALL THE DIGITS!!
 	dp <= '1';
 	
 end Behavioral;
