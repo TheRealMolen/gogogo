@@ -36,9 +36,9 @@ impact.xsl
 impact_impact.xwbt
 *~
 *.bgn
-*.bit
 *.bld
 *.drc
+*.gise
 *.lso
 *.ncd
 *.ngc
@@ -77,6 +77,7 @@ usage_statistics_webtalk.html
 xlnx_auto_0_xdb
 xst
 webtalk.log
+webtalk_pn.xml
  
 #ignore OS noise
  
