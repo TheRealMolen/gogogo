@@ -2,16 +2,19 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
-entity gogogo is
-    Port ( --switches : in STD_LOGIC_VECTOR( 7 downto 0 );
-           digits : out  STD_LOGIC_VECTOR( 3 downto 0 );
-			  segments : out  STD_LOGIC_VECTOR( 6 downto 0 );
-			  dp : out STD_LOGIC;
-			  clk : in STD_LOGIC);
-end gogogo;
 
-architecture Behavioral of gogogo is
-	signal counter : UNSIGNED( 33 downto 0 ) := (others => '0');
+entity sevenseg is
+    Port ( clk : in  STD_LOGIC;
+           digit0 : in  UNSIGNED (3 downto 0);
+           digit1 : in  UNSIGNED (3 downto 0);
+           digit2 : in  UNSIGNED (3 downto 0);
+           digit3 : in  UNSIGNED (3 downto 0);
+           digit_sel : out  STD_LOGIC_VECTOR (3 downto 0);
+           segments : out  STD_LOGIC_VECTOR (6 downto 0));
+end sevenseg;
+
+architecture Behavioral of sevenseg is
+	signal counter : UNSIGNED( 16 downto 0 ) := (others => '0');
 	signal activeDigit : UNSIGNED( 3 downto 0 ) := "0000";
 begin
 
@@ -24,20 +27,20 @@ begin
 			-- bit 15 changes at 488Hz (assuming 32MHz clock)
 			case counter(16 downto 15) is
 				when "00" =>
-					digits <= "1110";
-					activeDigit <= counter(21 downto 18);
+					digit_sel <= "1110";
+					activeDigit <= digit0;
 				when "01" =>
-					digits <= "1101";
-					activeDigit <= counter(25 downto 22);
+					digit_sel <= "1101";
+					activeDigit <= digit1;
 				when "10" =>
-					digits <= "1011";
-					activeDigit <= counter(29 downto 26);
+					digit_sel <= "1011";
+					activeDigit <= digit2;
 				when "11" =>
-					digits <= "0111";
-					activeDigit <= counter(33 downto 30);
+					digit_sel <= "0111";
+					activeDigit <= digit3;
 					
 				when others =>
-					digits <= "1111";
+					digit_sel <= "1111";
 					activeDigit <= ( others => '0' );
 			end case;
 			
@@ -81,7 +84,6 @@ begin
 			
 		end if;
 	end process;
-	
-	dp <= '1';
-	
+
 end Behavioral;
+
