@@ -1,8 +1,0 @@
-INTSTYLE=ise
-INFILE=/media/sf_papilio/gogogo/gogogo.ncd
-OUTFILE=/media/sf_papilio/gogogo/gogogo.bit
-FAMILY=Spartan3E
-PART=xc3s500e-4vq100
-WORKINGDIR=/media/sf_papilio/gogogo
-LICENSE=WebPack
-USER_INFO=210911610_0_0_226
