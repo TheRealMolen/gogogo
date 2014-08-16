@@ -3,51 +3,53 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 
-
 entity gogogo is
     Port ( LEDs : out STD_LOGIC_VECTOR( 7 downto 0 );
+		     audio : out STD_LOGIC;
 			  clk : in STD_LOGIC);
 end gogogo;
 
 
 architecture Behavioral of gogogo is
-	COMPONENT counter30
-	  PORT (
-		 clk : IN STD_LOGIC;
-		 q : OUT STD_LOGIC_VECTOR(29 DOWNTO 0)
-	  );
-	END COMPONENT;
-	COMPONENT memory
-	  PORT (
-		 clka : IN STD_LOGIC;
-		 ena : IN STD_LOGIC;
-		 addra : IN STD_LOGIC_VECTOR(9 DOWNTO 0);
-		 douta : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
-	  );
+	COMPONENT dac8
+	  PORT(
+		clk : IN std_logic;
+		data : IN unsigned(7 downto 0);          
+		pulseStream : OUT std_logic
+		);
 	END COMPONENT;
 	
-	attribute box_type : string;
-	attribute box_type of counter30 : component is "black_box";
-	attribute box_type of memory : component is "black_box";
-	
-	signal count: STD_LOGIC_VECTOR(29 downto 0);
-	signal addr : STD_LOGIC_VECTOR(9 downto 0);
+	signal mix : UNSIGNED(7 downto 0) := (others => '0');
+	signal hist : STD_LOGIC_VECTOR(7 downto 0) := (others => '0');
+	signal counter : UNSIGNED(16 downto 0) := (others => '0');
 	
 begin
 
-	addr <= "0000" & count(25 downto 20);
+	LEDs <= hist;
 
-	addr_counter : counter30
-		PORT MAP (
-			clk => clk,
-			q => count
-		);
-	rom : memory
-		PORT MAP (
-			clka => clk,
-			ena => '1',
-			addra => addr,
-			douta => LEDs
-		);
+	tick: process( clk )
+	begin
+		if rising_edge( clk ) then
+			counter <= counter + 1;
+		
+			-- generate signal
+			if counter = to_unsigned( 36363, 17 ) then
+				mix <= not mix;
+				counter <= (others => '0');
+			end if;
+		
+			-- build up tracking histogram (futile - needs to sync to signal to be useful)
+			if counter = to_unsigned( 20000, 17 ) then
+				hist(7 downto 1) <= hist(6 downto 0);
+				hist(0) <= mix(7);
+			end if;
+		end if;
+	end process;
+		
+	dac: dac8 PORT MAP(
+		clk => clk,
+		data => mix,
+		pulseStream => audio
+	);
 	
 end Behavioral;
